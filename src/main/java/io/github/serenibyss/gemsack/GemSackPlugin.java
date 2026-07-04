@@ -111,7 +111,7 @@ public class GemSackPlugin extends Plugin {
         }
 
         if (pickedUpGem != null) {
-            List<SackTypes> sackTypes = Utils.getSacksInInventory(playerInv);
+            List<SackTypes> sackTypes = Utils.getOpenSacksInInventory(playerInv);
             if (sackTypes != null) {
                 for (SackTypes sackType : sackTypes) {
                     sackType.getStorage().addSingle(pickedUpGem, configManager);
@@ -188,7 +188,7 @@ public class GemSackPlugin extends Plugin {
             if (message.startsWith("You just mined a")) {
                 GemTypes gemType = GemTypes.getGemByName(message + "uncut"); // hacky once again
                 if (gemType != null) {
-                    List<SackTypes> sacks = Utils.getSacksInInventory(client.getItemContainer(InventoryID.INV));
+                    List<SackTypes> sacks = Utils.getOpenSacksInInventory(client.getItemContainer(InventoryID.INV));
                     if (sacks != null) {
                         for (SackTypes sack : sacks) {
                             sack.getStorage().addSingle(gemType, configManager);

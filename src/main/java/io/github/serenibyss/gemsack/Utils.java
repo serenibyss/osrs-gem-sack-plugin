@@ -47,16 +47,20 @@ public class Utils {
         return inventory;
     }
 
+    public static List<SackTypes> getOpenSacksInInventory(ItemContainer container) {
+        return getSacksInInventory(container, false);
+    }
+
     // Finds all gem sacks in the player's inventory
     // Could be multiple, if sacks are not combined to the final Gem Sack yet
-    public static List<SackTypes> getSacksInInventory(ItemContainer container) {
+    private static List<SackTypes> getSacksInInventory(ItemContainer container, boolean allowClosed) {
         if (container == null) return null;
 
         List<SackTypes> sacks = new ArrayList<>();
         for (Item item : container.getItems()) {
             if (item == null) continue;
             SackTypes sackType = SackTypes.getSackType(item.getId());
-            if (sackType != null) {
+            if (sackType != null && (allowClosed || sackType.getOpenItemID() == item.getId())) {
                 sacks.add(sackType);
             }
         }
