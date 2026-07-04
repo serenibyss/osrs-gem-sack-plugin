@@ -202,7 +202,7 @@ public class GemSackPlugin extends Plugin {
             String message = event.getMessage();
 
             // Update state based on what the chat says
-            if (message.startsWith("Opal:") || message.startsWith("Sapphire:")) {
+            if (message.startsWith("Opal:") || message.startsWith("Sapphires:")) {
                 Map<GemTypes, Integer> newGems = Utils.getGemsFromChat(message);
                 checkedSack.getStorage().forceUpdate(newGems, configManager);
             }
