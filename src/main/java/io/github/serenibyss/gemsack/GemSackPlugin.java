@@ -16,8 +16,8 @@ import net.runelite.api.ItemContainer;
 import net.runelite.api.MenuAction;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.GameStateChanged;
-import net.runelite.api.events.GameTick;
 import net.runelite.api.events.ItemContainerChanged;
+import net.runelite.api.events.ItemDespawned;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.client.config.ConfigManager;
@@ -65,7 +65,6 @@ public class GemSackPlugin extends Plugin {
     private SackTypes checkedSack;
 
     // For when a gem is picked up off the ground
-    private Multiset<Integer> pickupInventorySnapshot;
     private GemTypes pickedUpGem;
 
     @Override
@@ -94,28 +93,16 @@ public class GemSackPlugin extends Plugin {
     }
 
     @Subscribe
-    public void onGameTick(GameTick event) {
+    public void onItemDespawned(ItemDespawned event) {
         if (pickedUpGem == null) return;
+        if (event.getItem() == null) return;
+        if (event.getItem().getId() != pickedUpGem.getItemID()) return;
 
         ItemContainer playerInv = client.getItemContainer(InventoryID.INV);
-        Multiset<Integer> currentInventory = Utils.createInventorySnapshot(playerInv);
-        Multiset<Integer> deltaPlus = Multisets.difference(pickupInventorySnapshot, currentInventory);
-
-        if (!deltaPlus.isEmpty()) {
-            deltaPlus.forEachEntry((id, c) -> {
-                GemTypes gemType = GemTypes.getGemByID(id);
-                if (gemType == pickedUpGem) {
-                    pickedUpGem = null;
-                }
-            });
-        }
-
-        if (pickedUpGem != null) {
-            List<SackTypes> sackTypes = Utils.getOpenSacksInInventory(playerInv);
-            if (sackTypes != null) {
-                for (SackTypes sackType : sackTypes) {
-                    sackType.getStorage().addSingle(pickedUpGem, configManager);
-                }
+        List<SackTypes> sackTypes = Utils.getOpenSacksInInventory(playerInv);
+        if (sackTypes != null) {
+            for (SackTypes type : sackTypes) {
+                type.getStorage().addSingle(pickedUpGem, configManager);
             }
         }
 
@@ -130,7 +117,6 @@ public class GemSackPlugin extends Plugin {
         // The game tick event will clear this state for the next tick's gem if necessary.
         if (option.equals("Take") && GemTypes.isGemName(event.getMenuTarget()) && pickedUpGem == null) {
             pickedUpGem = GemTypes.getGemByName(event.getMenuTarget());
-            pickupInventorySnapshot = Utils.createInventorySnapshot(client.getItemContainer(InventoryID.INV));
         }
 
         if (event.getWidget() == null) return;
