@@ -127,9 +127,14 @@ public class GemSackPlugin extends Plugin {
         // In inventory
         // Right click empty into bank
         if (SackTypes.isSackType(id) && option.equals("Empty") || option.equals("Fill")) {
+
+            // For emptying into inventory
             inventorySnapshot = Utils.createInventorySnapshot(client.getItemContainer(InventoryID.INV));
             clickedSacks.add(SackTypes.getSackType(id));
             checkForUpdate = true;
+
+            // For emptying into bank
+            checkedSack = SackTypes.getSackType(id);
         }
         // Use gem on sack thing or sack thing on gem
         else if (option.equals("Use")
@@ -186,6 +191,10 @@ public class GemSackPlugin extends Plugin {
 
         if (event.getType() == ChatMessageType.GAMEMESSAGE && checkedSack != null) {
             String message = event.getMessage();
+
+            if (message.startsWith("You empty your gem") && message.contains("into the bank")) {
+                checkedSack.getStorage().clear(configManager);
+            }
 
             // Update state based on what the chat says
             if (message.startsWith("Opal:") || message.startsWith("Sapphires:")) {
