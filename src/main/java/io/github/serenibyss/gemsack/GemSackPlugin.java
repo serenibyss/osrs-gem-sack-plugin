@@ -67,6 +67,9 @@ public class GemSackPlugin extends Plugin {
     // For when a gem is picked up off the ground
     private GemTypes pickedUpGem;
 
+    // For when a gem is telegrabbed
+    private GemTypes telegrabbedGem;
+
     @Override
     protected void startUp() throws Exception {
         overlay = new GemSackOverlay(config, client, tooltipManager);
@@ -94,19 +97,29 @@ public class GemSackPlugin extends Plugin {
 
     @Subscribe
     public void onItemDespawned(ItemDespawned event) {
-        if (pickedUpGem == null) return;
         if (event.getItem() == null) return;
-        if (event.getItem().getId() != pickedUpGem.getItemID()) return;
 
+        if (pickedUpGem != null) {
+            if (event.getItem().getId() != pickedUpGem.getItemID()) return;
+            handlePickedUpGem(pickedUpGem);
+            pickedUpGem = null;
+        }
+
+        if (telegrabbedGem != null) {
+            if (event.getItem().getId() != telegrabbedGem.getItemID()) return;
+            handlePickedUpGem(telegrabbedGem);
+            telegrabbedGem = null;
+        }
+    }
+
+    private void handlePickedUpGem(GemTypes gem) {
         ItemContainer playerInv = client.getItemContainer(InventoryID.INV);
         List<SackTypes> sackTypes = Utils.getOpenSacksInInventory(playerInv);
         if (sackTypes != null) {
             for (SackTypes type : sackTypes) {
-                type.getStorage().addSingle(pickedUpGem, configManager);
+                type.getStorage().addSingle(gem, configManager);
             }
         }
-
-        pickedUpGem = null;
     }
 
     @Subscribe
@@ -115,8 +128,16 @@ public class GemSackPlugin extends Plugin {
 
         // On the ground, can only pick up one ground item per tick so take the first.
         // The game tick event will clear this state for the next tick's gem if necessary.
-        if (option.equals("Take") && GemTypes.isGemName(event.getMenuTarget()) && pickedUpGem == null) {
+        if (pickedUpGem == null && option.equals("Take") && GemTypes.isGemName(event.getMenuTarget())) {
             pickedUpGem = GemTypes.getGemByName(event.getMenuTarget());
+        }
+
+        // Similar to the above, except for when Telegrab is used.
+        if (telegrabbedGem == null
+                && option.equals("Cast")
+                && event.getMenuTarget().contains("Telekinetic Grab")
+                && GemTypes.isGemName(event.getMenuTarget())) {
+            telegrabbedGem = GemTypes.getGemByName(event.getMenuTarget());
         }
 
         if (event.getWidget() == null) return;
