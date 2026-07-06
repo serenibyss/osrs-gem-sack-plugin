@@ -176,7 +176,8 @@ public class GemSackPlugin extends Plugin {
         // Gem rock mining
         if (event.getType() == ChatMessageType.SPAM) {
             String message = event.getMessage();
-            if (message.startsWith("You just mined a")) {
+            // "mined": gem rocks, "found": other mining sources
+            if (message.startsWith("You just mined a") || message.startsWith("You just found a")) {
                 GemTypes gemType = GemTypes.getGemByName(message + "uncut"); // hacky once again
                 if (gemType != null) {
                     List<SackTypes> sacks = Utils.getOpenSacksInInventory(client.getItemContainer(InventoryID.INV));
