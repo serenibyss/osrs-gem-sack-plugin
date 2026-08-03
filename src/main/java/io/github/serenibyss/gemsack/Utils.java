@@ -53,7 +53,7 @@ public class Utils {
 
     // Finds all gem sacks in the player's inventory
     // Could be multiple, if sacks are not combined to the final Gem Sack yet
-    private static List<SackTypes> getSacksInInventory(ItemContainer container, boolean allowClosed) {
+    public static List<SackTypes> getSacksInInventory(ItemContainer container, boolean allowClosed) {
         if (container == null) return null;
 
         List<SackTypes> sacks = new ArrayList<>();

@@ -64,6 +64,9 @@ public class GemSackPlugin extends Plugin {
     // For when the "Check" message is clicked on a sack
     private SackTypes checkedSack;
 
+    // For when the "Empty containers" button is clicked in a bank
+    private final List<SackTypes> emptiedSacks = new ArrayList<>();
+
     // For when a gem is picked up off the ground
     private GemTypes pickedUpGem;
 
@@ -186,6 +189,12 @@ public class GemSackPlugin extends Plugin {
                     checkForUpdate = true;
                 }
             }
+        // Empty containers button in the bank
+        } else if (option.equals("Empty containers")) {
+            List<SackTypes> sacks = Utils.getSacksInInventory(client.getItemContainer(InventoryID.INV), true);
+            if (sacks != null) {
+                emptiedSacks.addAll(sacks);
+            }
         }
         // Fallback, if the gem sack is checked, read the text
         else if (SackTypes.isSackType(id) && option.equals("Check")) {
@@ -215,22 +224,37 @@ public class GemSackPlugin extends Plugin {
         if (event.getType() == ChatMessageType.GAMEMESSAGE && checkedSack != null) {
             String message = event.getMessage();
 
-            if (message.startsWith("You empty your gem") && message.contains("into the bank")) {
-                checkedSack.getStorage().clear(configManager);
+            if (checkedSack != null) {
+                if (message.startsWith("You empty your gem") && message.contains("into the bank")) {
+                    checkedSack.getStorage().clear(configManager);
+                }
+
+                // Update state based on what the chat says
+                if (message.startsWith("Opal:") || message.startsWith("Sapphires:")) {
+                    Map<GemTypes, Integer> newGems = Utils.getGemsFromChat(message);
+                    checkedSack.getStorage().forceUpdate(newGems, configManager);
+                }
+
+                // Emergency exit if the bag gets a messed up state
+                if (message.startsWith("The gem") && (message.contains("is now empty.") || message.contains("is empty."))) {
+                    checkedSack.getStorage().clear(configManager);
+                }
+
+                checkedSack = null;
             }
 
-            // Update state based on what the chat says
-            if (message.startsWith("Opal:") || message.startsWith("Sapphires:")) {
-                Map<GemTypes, Integer> newGems = Utils.getGemsFromChat(message);
-                checkedSack.getStorage().forceUpdate(newGems, configManager);
-            }
+            if (!emptiedSacks.isEmpty()) {
+                if (message.equals("You empty all of your containers into the bank.")) {
+                    emptiedSacks.forEach(sack -> sack.getStorage().clear(configManager));
+                }
 
-            // Emergency exit if the bag gets a messed up state
-            if (message.startsWith("The gem") && (message.contains("is now empty.") || message.contains("is empty."))) {
-                checkedSack.getStorage().clear(configManager);
-            }
+                // Emergency exit if the bag gets a messed up state
+                if (message.equals("Your containers are already empty.")) {
+                    emptiedSacks.forEach(sack -> sack.getStorage().clear(configManager));
+                }
 
-            checkedSack = null;
+                emptiedSacks.clear();
+            }
         }
     }
 
