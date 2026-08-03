@@ -147,7 +147,8 @@ public class GemSackPlugin extends Plugin {
 
         // In inventory
         // Right click empty into bank
-        if (SackTypes.isSackType(id) && option.equals("Empty") || option.equals("Fill")) {
+        if (SackTypes.isSackType(id)
+                && (option.equals("Empty") || option.equals("Empty-to-bank") || option.equals("Fill"))) {
 
             // For emptying into inventory
             inventorySnapshot = Utils.createInventorySnapshot(client.getItemContainer(InventoryID.INV));
