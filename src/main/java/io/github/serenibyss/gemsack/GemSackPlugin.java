@@ -22,6 +22,7 @@ import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.game.ItemManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
@@ -41,6 +42,9 @@ public class GemSackPlugin extends Plugin {
 
     @Inject
     private Client client;
+
+    @Inject
+    private ItemManager itemManager;
 
     @Inject
     private TooltipManager tooltipManager;
@@ -75,7 +79,7 @@ public class GemSackPlugin extends Plugin {
 
     @Override
     protected void startUp() throws Exception {
-        overlay = new GemSackOverlay(config, client, tooltipManager);
+        overlay = new GemSackOverlay(config, client, tooltipManager, itemManager);
         overlayManager.add(overlay);
     }
 

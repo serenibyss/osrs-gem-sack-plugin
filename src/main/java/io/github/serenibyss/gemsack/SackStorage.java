@@ -8,6 +8,7 @@ import lombok.Getter;
 
 import net.runelite.api.gameval.ItemID;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.game.ItemManager;
 
 import java.util.List;
 import java.util.Map;
@@ -90,6 +91,32 @@ public class SackStorage {
         if (sackType.canStoreGem(GemTypes.DIAMOND) && diamond > 0) total += diamond;
         if (sackType.canStoreGem(GemTypes.DRAGONSTONE) && dragonstone > 0) total += dragonstone;
         return total;
+    }
+
+    public long getTotalValue(ItemManager itemManager) {
+        constrain();
+        long total = 0;
+        for (GemTypes gem : GemTypes.values()) {
+            if (!sackType.canStoreGem(gem)) continue;
+            int count = getCount(gem);
+            if (count <= 0) continue;
+            total += (long) count * itemManager.getItemPrice(gem.getItemID());
+        }
+        return total;
+    }
+
+    private int getCount(GemTypes gem) {
+        switch (gem) {
+            case OPAL: return opal;
+            case JADE: return jade;
+            case TOPAZ: return topaz;
+            case SAPPHIRE: return sapphire;
+            case EMERALD: return emerald;
+            case RUBY: return ruby;
+            case DIAMOND: return diamond;
+            case DRAGONSTONE: return dragonstone;
+            default: return 0;
+        }
     }
 
     public void forceUpdate(Map<GemTypes, Integer> newGems, ConfigManager configManager) {
