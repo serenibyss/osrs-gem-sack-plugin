@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.Point;
 import net.runelite.api.widgets.WidgetItem;
+import net.runelite.client.game.ItemManager;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.overlay.WidgetItemOverlay;
 import net.runelite.client.ui.overlay.tooltip.TooltipManager;
@@ -23,14 +24,14 @@ public class GemSackOverlay extends WidgetItemOverlay {
     private final GemSackTextOverlay overlay;
     private final GemSackTooltip tooltip;
 
-    public GemSackOverlay(GemSackConfig config, Client client, TooltipManager tooltipManager) {
+    public GemSackOverlay(GemSackConfig config, Client client, TooltipManager tooltipManager, ItemManager itemManager) {
         this.config = config;
         this.client = client;
 
         showOnInventory();
 
         this.overlay = new GemSackTextOverlay();
-        this.tooltip = new GemSackTooltip(tooltipManager);
+        this.tooltip = new GemSackTooltip(tooltipManager, itemManager);
     }
 
     @Override
@@ -45,7 +46,7 @@ public class GemSackOverlay extends WidgetItemOverlay {
         }
 
         if (sackType.enableHover(this.config) && isHovered(widgetItem, client.getMouseCanvasPosition())) {
-            tooltip.renderTooltip(sackType);
+            tooltip.renderTooltip(sackType, config.showGEValue());
         }
     }
 

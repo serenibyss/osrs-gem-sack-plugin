@@ -88,4 +88,12 @@ public interface GemSackConfig extends Config {
     default boolean gemSackHover() {
         return true;
     }
+
+    @ConfigItem(
+            keyName = "showGEValue",
+            name = "Show GE value in tooltip",
+            description = "Show the total Grand Exchange value of the gems in the hover tooltip")
+    default boolean showGEValue() {
+        return true;
+    }
 }
